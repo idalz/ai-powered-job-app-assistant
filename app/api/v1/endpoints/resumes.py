@@ -40,18 +40,24 @@ async def upload_resume(file: UploadFile = File(...)):
     # LLM info extraction
     extracted_info = extract_resume_info(parsed_text)
     
+    # Store in vector
+    pinecone_store_result = store_resume(parsed_text, metadata={"filename": file.filename})
+
     # Return json 
     return JSONResponse(content={
         "message": "Resume uploaded and parsed successfully",
         "file_path": file_path,
         "parsed_text": parsed_text,
-        "extracted_info": extracted_info
+        "extracted_info": extracted_info,
+        "pinecone_store": pinecone_store_result
     })
 
+# Store a resume
 @router.post("/store")
 def store(text: str = Body(..., embed=True)):
     return store_resume(text, metadata={"source": "user_upload"})
 
+# Search for resume
 @router.post("/search")
 def search(query: str = Body(..., embed=True)):
     return search_resumes(query)

@@ -55,3 +55,36 @@ def test_cover_letter_endpoint():
     response = client.post("/api/v1/letters/generate", json=payload)
     assert response.status_code == 200
     assert "cover_letter" in response.json()
+
+# Test upload + auto store
+def test_upload_and_store_resume(tmp_path):
+    # Create fake resume file
+    file_path = tmp_path / "resume.txt"
+    file_path.write_text("Yannis is a backend engineer skilled in FastAPI and LangChain.")
+
+    with open(file_path, "rb") as file:
+        response = client.post(
+            "/api/v1/resumes/upload",
+            files={"file": ("resume.txt", file, "text/plain")}
+        )
+
+    assert response.status_code == 200
+    data = response.json()
+    assert "parsed_text" in data
+    assert "pinecone_store" in data
+    assert data["pinecone_store"]["status"] == "stored"
+
+def test_auto_generate_letter():
+    payload = {
+        "job_text": "We are hiring a backend engineer with Python, FastAPI, and LangChain skills.",
+        "guidelines": "Mention my passion for clean code and remote work."
+    }
+    response = client.post("/api/v1/assistant/auto-generate-letter", json=payload)
+    assert response.status_code == 200
+
+    data = response.json()
+    assert "job_info" in data
+    assert "matched_resume" in data
+    assert "match_result" in data
+    assert "cover_letter" in data
+    
