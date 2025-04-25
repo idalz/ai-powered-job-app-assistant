@@ -82,7 +82,7 @@ def match_resume_to_job(resume_info: str, job_info: str) -> dict:
         logger.error(f"Resume-job matching failed: {e}")
         return {"error": str(e)}
     
-def generate_cover_letter(resume_info: str, job_info: str, user_guidelines: str = "") -> dict:
+def generate_cover_letter(resume_info: str, job_info: str, guidelines: str = "") -> dict:
     try:
         prompt = ChatPromptTemplate.from_template("""
         Write a professional, personalized cover letter based on the information given:
@@ -102,7 +102,7 @@ def generate_cover_letter(resume_info: str, job_info: str, user_guidelines: str 
         Cover Letter:                                    
         """)
 
-        extra_guidelines = f"- Additional user guidelines:\n{user_guidelines}" if user_guidelines else ""
+        extra_guidelines = f"- Additional user guidelines:\n{guidelines}" if guidelines else ""
         chain = prompt | llm
         result = chain.invoke({
             "resume_info": resume_info,
