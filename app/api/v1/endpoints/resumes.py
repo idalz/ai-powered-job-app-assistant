@@ -1,10 +1,12 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Body
 from fastapi.responses import JSONResponse
 import os
 from uuid import uuid4
 from app.core.logger import logger
-from app.services.resume_parser import parse_pdf_resume, parse_docx_resume
+from app.core.rag import store_resume, search_resumes
 from app.core.llm import extract_resume_info
+from app.services.resume_parser import parse_pdf_resume, parse_docx_resume
+
 
 UPLOAD_DIR = "app/uploads" # Store uploads here
 
@@ -45,3 +47,11 @@ async def upload_resume(file: UploadFile = File(...)):
         "parsed_text": parsed_text,
         "extracted_info": extracted_info
     })
+
+@router.post("/store")
+def store(text: str = Body(..., embed=True)):
+    return store_resume(text, metadata={"source": "user_upload"})
+
+@router.post("/search")
+def search(query: str = Body(..., embed=True)):
+    return search_resumes(query)

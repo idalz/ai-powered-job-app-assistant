@@ -1,9 +1,12 @@
 fastapi
 uvicorn
-python-dotenv
-python-multipart
-pdfplumber 
-python-docx
-langchain 
 openai
+langchain
 langchain-openai
+langchain-community
+langchain-pinecone
+tiktoken
+python-multipart
+pdfplumber
+python-docx
+python-dotenv
