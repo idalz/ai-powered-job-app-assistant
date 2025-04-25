@@ -16,7 +16,10 @@ router = APIRouter()
 
 # File upload
 @router.post("/upload")
-async def upload_resume(file: UploadFile = File(...)):
+async def upload_resume(
+    file: UploadFile = File(...),
+    name: str = Body(default="", embed=True)
+):
     # Read file and create path
     if not file.filename.endswith((".pdf", ".docx", ".txt")):
         logger.warning(f"Rejected file upload: {file.filename}")
@@ -41,7 +44,7 @@ async def upload_resume(file: UploadFile = File(...)):
     extracted_info = extract_resume_info(parsed_text)
     
     # Store in vector
-    pinecone_store_result = store_resume(parsed_text, metadata={"filename": file.filename})
+    pinecone_store_result = store_resume(parsed_text, metadata={"filename": file.filename, "name": name})
 
     # Return json 
     return JSONResponse(content={
@@ -55,7 +58,11 @@ async def upload_resume(file: UploadFile = File(...)):
 # Store a resume
 @router.post("/store")
 def store(text: str = Body(..., embed=True)):
-    return store_resume(text, metadata={"source": "user_upload"})
+    result = store_resume(text, metadata={"source": "user_upload"})
+    return JSONResponse(content={
+        "message": "Resume stored successfully.",
+        "pinecone_result": result
+    })
 
 # Search for resume
 @router.post("/search")

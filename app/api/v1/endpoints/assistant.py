@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from app.core.llm import extract_job_info, match_resume_to_job, generate_cover_letter
 from app.core.rag import search_resumes
 from app.core.logger import logger
+from app.services.check_result_type import check_result_type
 
 router = APIRouter()
 
@@ -40,12 +41,15 @@ async def auto_generate_letter(
     # Match resume to job
     match_result = match_resume_to_job(best_resume, job_info)
 
-    # Step 4: Generate cover letter
-    letter_result = generate_cover_letter(best_resume, job_info, guidelines)
+    # Generate cover letter
+    raw_letter = generate_cover_letter(best_resume, job_info, guidelines)
+    cover_letter = check_result_type(raw_letter, expected_type=str, fallback="")
+
+    logger.info(f"Auto-generated cover letter: {cover_letter}")
 
     return JSONResponse(content={
         "job_info": job_info,
         "matched_resume": best_resume,
         "match_result": match_result,
-        "cover_letter": letter_result
+        "cover_letter": cover_letter
     })

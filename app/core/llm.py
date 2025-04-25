@@ -2,6 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from app.core.config import settings
 from app.core.logger import logger
+import json 
 
 llm = ChatOpenAI(
     temperature=0.2,
@@ -36,20 +37,29 @@ def extract_resume_info(resume_text: str) -> dict:
 def extract_job_info(job_text: str) -> dict:
     try:
         prompt = ChatPromptTemplate.from_template("""
-        Extract the following from this job description:
-        - Job Title
-        - Required Skills
-        - Responsibilities
-        - Company Name (if mentioned)
+        Extract the following and return it as a valid JSON object:
+        - Job Title as job_title
+        - Location as location
+        - Experience Level as experience_level (search for keywords in the whole text provided)
+        - Description as description
+        - Company Name as company
+        - Required Skills as skills (only keywords)
 
+        Try to Search for these fields in the whole text provided.
+        If something is not mentioned, return "Not mentioned" as its value.                                        
+                                           
         Job Description:
         {job_text}       
         """)
 
         chain = prompt | llm
         result = chain.invoke({"job_text": job_text})
+
         logger.info("Job info extracted successfully")
-        return {"extracted_info": result.content}
+
+        job_info = json.loads(result.content)
+
+        return job_info
     except Exception as e:
         logger.error(f"Job info extraction failed: {e}")
         return {"error": str(e)}
@@ -82,7 +92,7 @@ def match_resume_to_job(resume_info: str, job_info: str) -> dict:
         logger.error(f"Resume-job matching failed: {e}")
         return {"error": str(e)}
     
-def generate_cover_letter(resume_info: str, job_info: str, guidelines: str = "") -> dict:
+def generate_cover_letter(resume_info: str, job_info: str, guidelines: str = "") -> str:
     try:
         prompt = ChatPromptTemplate.from_template("""
         Write a professional, personalized cover letter based on the information given:
@@ -110,7 +120,7 @@ def generate_cover_letter(resume_info: str, job_info: str, guidelines: str = "")
             "guidelines": extra_guidelines
         })
         logger.info("Cover letter generated successfully")
-        return {"cover_letter": result.content}
+        return result.content
     except Exception as e:
         logger.error(f"Cover letter generation failed: {e}")
         return {"error": str(e)}

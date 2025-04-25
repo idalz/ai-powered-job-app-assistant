@@ -176,3 +176,5 @@ cython_debug/
 
 # Extra
 app/uploads/
+app_test_files/
+app_screenshots/
