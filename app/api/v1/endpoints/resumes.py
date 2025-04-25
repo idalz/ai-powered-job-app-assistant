@@ -16,7 +16,7 @@ router = APIRouter()
 @router.post("/upload")
 async def upload_resume(file: UploadFile = File(...)):
     # Read file and create path
-    if not file.filename.endswith((".pdf", ".docx")):
+    if not file.filename.endswith((".pdf", ".docx", ".txt")):
         logger.warning(f"Rejected file upload: {file.filename}")
         raise HTTPException(status_code=400, detail="Only .pdf and .docx files are supported.")
 
