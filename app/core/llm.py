@@ -82,3 +82,36 @@ def match_resume_to_job(resume_info: str, job_info: str) -> dict:
         logger.error(f"Resume-job matching failed: {e}")
         return {"error": str(e)}
     
+def generate_cover_letter(resume_info: str, job_info: str, user_guidelines: str = "") -> dict:
+    try:
+        prompt = ChatPromptTemplate.from_template("""
+        Write a professional, personalized cover letter based on the information given:
+
+        Resume Info:
+        {resume_info}
+
+        Job Description Info:
+        {job_info}
+
+        Guidelines:
+        - Address the hiring team (no specific name)
+        - Mention how the applicant fits the role
+        - Highlight relevant skills and experience
+        {guidelines}
+
+        Cover Letter:                                    
+        """)
+
+        extra_guidelines = f"- Additional user guidelines:\n{user_guidelines}" if user_guidelines else ""
+        chain = prompt | llm
+        result = chain.invoke({
+            "resume_info": resume_info,
+            "job_info": job_info,
+            "guidelines": extra_guidelines
+        })
+        logger.info("Cover letter generated successfully")
+        return {"cover_letter": result.content}
+    except Exception as e:
+        logger.error(f"Cover letter generation failed: {e}")
+        return {"error": str(e)}
+    
