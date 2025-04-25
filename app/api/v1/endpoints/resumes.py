@@ -4,6 +4,7 @@ import os
 from uuid import uuid4
 from app.core.logger import logger
 from app.services.resume_parser import parse_pdf_resume, parse_docx_resume
+from app.core.llm import extract_resume_info
 
 UPLOAD_DIR = "app/uploads" # Store uploads here
 
@@ -33,14 +34,14 @@ async def upload_resume(file: UploadFile = File(...)):
         parsed_text = parse_pdf_resume(file_path)
     else:
         parsed_text = parse_docx_resume(file_path)
+
+    # LLM info extraction
+    extracted_info = extract_resume_info(parsed_text)
     
     # Return json 
     return JSONResponse(content={
         "message": "Resume uploaded and parsed successfully",
         "file_path": file_path,
-        "parsed_text": parsed_text
+        "parsed_text": parsed_text,
+        "extracted_info": extracted_info
     })
-
-@router.post("/")
-def upload_resume():
-    return {"message": "Resume upload and parsing will go here."}

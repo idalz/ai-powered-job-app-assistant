@@ -4,3 +4,6 @@ python-dotenv
 python-multipart
 pdfplumber 
 python-docx
+langchain 
+openai
+langchain-openai
