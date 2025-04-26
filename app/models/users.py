@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, ForeignKey
+from sqlalchemy import Column, String, ForeignKey, Boolean
 from app.db.database import Base
 
 
@@ -19,4 +19,5 @@ class UserInfo(Base):
     linkedin_url = Column(String, default="")
     github_url = Column(String, default="")
     resume = Column(String, default="")
+    is_recruiter = Column(Boolean, default=False)
     

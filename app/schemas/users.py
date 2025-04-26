@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     linkedin_url: Optional[str] = ""
     github_url: Optional[str] = ""
     resume: Optional[str] = ""
+    is_recruiter: Optional[bool] = False 
 
 class UserLogin(BaseModel):
     email: EmailStr
