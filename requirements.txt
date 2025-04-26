@@ -13,3 +13,4 @@ python-dotenv
 streamlit
 alembic 
 psycopg2
+passlib[bcrypt]
