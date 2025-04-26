@@ -8,6 +8,7 @@ from app.services.resume_parser import parse_pdf_resume, parse_docx_resume
 from app.db.deps import get_db
 from app.crud.resumes import update_resume
 from app.api.deps.jwt_bearer import JWTBearer
+from app.api.deps.current_user import get_current_user_payload
 
 import os
 from uuid import uuid4
@@ -19,12 +20,14 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 router = APIRouter()
 
 # File upload
-@router.post("/upload", dependencies=[Depends(JWTBearer())])
+@router.post("/upload")
 async def upload_resume(
     file: UploadFile = File(...),
-    email: str = Body(..., embed=True),
+    current_user: dict = Depends(get_current_user_payload),
     db: Session = Depends(get_db)
 ):
+    email = current_user.get("email")
+    
     # Validate file type
     if not file.filename.endswith((".pdf", ".docx", ".txt")):
         logger.warning(f"Rejected file upload: {file.filename}")

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.schemas.users import UserCreate, UserLogin
 from app.crud.user_crud import register_user, authenticate_user, get_user_info, update_user_info
-from app.api.deps.jwt_bearer import JWTBearer
+from app.api.deps.current_user import get_current_user_payload
 
 router = APIRouter()
 
@@ -25,8 +25,9 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     return {"message": "Login successful!"}
 
 # Read user info
-@router.get("/user/info", dependencies=[Depends(JWTBearer())])
-def read_user_info(email: str, db: Session = Depends(get_db)):
+@router.get("/user/info")
+def read_user_info(current_user: dict = Depends(get_current_user_payload), db: Session = Depends(get_db)):
+    email = current_user.get("email")
     try:
         user_info = get_user_info(db, email)
         return user_info
@@ -34,8 +35,9 @@ def read_user_info(email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=str(e))
 
 # Update user info
-@router.put("/user/info", dependencies=[Depends(JWTBearer())])
-def update_user(email: str, updated_fields: dict, db: Session = Depends(get_db)):
+@router.put("/user/info")
+def update_user(updated_fields: dict, current_user: dict = Depends(get_current_user_payload), db: Session = Depends(get_db)):
+    email = current_user.get("email")
     try:
         return update_user_info(db, email, updated_fields)
     except ValueError as e:
