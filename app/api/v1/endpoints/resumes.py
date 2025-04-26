@@ -66,9 +66,6 @@ async def upload_resume(
 
     # LLM info extraction
     extracted_info = extract_resume_info(parsed_text)
-    
-    # Store in vector
-    pinecone_store_result = store_resume(parsed_text, metadata={"filename": file.filename, "name": name})
 
     # Return json 
     return JSONResponse(content={
