@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.users import UserCred, UserInfo
 from app.schemas.users import UserCreate
-from app.services.security import get_password_hash, verify_password 
+from app.core.security import get_password_hash, verify_password 
 
 def register_user(db: Session, user: UserCreate):
     # Check if user already exists
