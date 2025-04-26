@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
-from app.core.llm import extract_job_info, match_resume_to_job, generate_cover_letter
-from app.core.rag import search_resumes
+from app.core.llm import match_resume_to_job
 from app.core.logger import logger
-from app.services.check_result_type import check_result_type
 
 router = APIRouter()
 

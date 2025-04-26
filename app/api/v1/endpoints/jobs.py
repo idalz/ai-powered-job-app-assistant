@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, HTTPException, Depends
+from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import JSONResponse
 from app.core.llm import extract_job_info
 from app.core.logger import logger
