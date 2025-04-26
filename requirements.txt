@@ -11,3 +11,5 @@ pdfplumber
 python-docx
 python-dotenv
 streamlit
+alembic 
+psycopg2
