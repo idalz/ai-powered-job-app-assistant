@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.schemas.users import UserCreate, UserLogin
 from app.crud.user_crud import register_user, authenticate_user, get_user_info, update_user_info
+from app.api.deps.jwt_bearer import JWTBearer
 
 router = APIRouter()
 
@@ -24,7 +25,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     return {"message": "Login successful!"}
 
 # Read user info
-@router.get("/user/info")
+@router.get("/user/info", dependencies=[Depends(JWTBearer())])
 def read_user_info(email: str, db: Session = Depends(get_db)):
     try:
         user_info = get_user_info(db, email)
@@ -33,7 +34,7 @@ def read_user_info(email: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail=str(e))
 
 # Update user info
-@router.put("/user/info")
+@router.put("/user/info", dependencies=[Depends(JWTBearer())])
 def update_user(email: str, updated_fields: dict, db: Session = Depends(get_db)):
     try:
         return update_user_info(db, email, updated_fields)

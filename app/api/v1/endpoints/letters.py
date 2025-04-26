@@ -6,11 +6,13 @@ from app.crud.resumes import get_resume_by_email
 from app.core.llm import generate_cover_letter
 from app.services.check_result_type import check_result_type
 from app.core.logger import logger
+from app.api.deps.jwt_bearer import JWTBearer
+
 
 router = APIRouter()
 
 # Generate cover letter
-@router.post("/generate")
+@router.post("/generate", dependencies=[Depends(JWTBearer())])
 async def generate_letter(
     email: str = Body(..., embed=True),
     job_info: str = Body(..., embed=True),

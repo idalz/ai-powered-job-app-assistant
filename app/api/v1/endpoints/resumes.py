@@ -7,6 +7,8 @@ from app.core.llm import extract_resume_info
 from app.services.resume_parser import parse_pdf_resume, parse_docx_resume
 from app.db.deps import get_db
 from app.crud.resumes import update_resume
+from app.api.deps.jwt_bearer import JWTBearer
+
 import os
 from uuid import uuid4
 
@@ -17,7 +19,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 router = APIRouter()
 
 # File upload
-@router.post("/upload")
+@router.post("/upload", dependencies=[Depends(JWTBearer())])
 async def upload_resume(
     file: UploadFile = File(...),
     email: str = Body(..., embed=True),
@@ -70,7 +72,7 @@ async def upload_resume(
     })
 
 # Store a resume
-@router.post("/store")
+@router.post("/store", dependencies=[Depends(JWTBearer())])
 def store(text: str = Body(..., embed=True)):
     result = store_resume(text, metadata={"source": "user_upload"})
     return JSONResponse(content={
@@ -79,6 +81,6 @@ def store(text: str = Body(..., embed=True)):
     })
 
 # Search for resume
-@router.post("/search")
+@router.post("/search", dependencies=[Depends(JWTBearer())])
 def search(query: str = Body(..., embed=True)):
     return search_resumes(query)
