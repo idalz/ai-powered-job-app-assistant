@@ -9,5 +9,6 @@ class Settings:
     PINECONE_INDEX_NAME: str = os.getenv("PINECONE_INDEX_NAME")
     API_URL: str  = os.getenv("API_URL")
     DATABASE_URL: str = os.getenv("DATABASE_URL")
+    SECRET_KEY: str = os.getenv("SECRET_KEY")
 
 settings = Settings()
