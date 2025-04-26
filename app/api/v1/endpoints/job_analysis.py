@@ -1,0 +1,19 @@
+from fastapi import APIRouter, Body
+from fastapi.responses import JSONResponse
+from app.core.llm import extract_job_info, match_resume_to_job, generate_cover_letter
+from app.core.rag import search_resumes
+from app.core.logger import logger
+from app.services.check_result_type import check_result_type
+
+router = APIRouter()
+
+# Resume-job match
+@router.post("/match")
+def match_resume_and_job(
+    resume_info: str = Body(..., embed=True),
+    job_info: str = Body(..., embed=True)
+):
+    logger.info("Running resume-job matching.")
+    result = match_resume_to_job(resume_info, job_info)
+    return JSONResponse(content=result)
+
