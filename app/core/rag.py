@@ -52,3 +52,13 @@ def search_resumes(query: str, k: int = 3):
         logger.error(f"Pinecone search failed: {e}")
         return {"error": str(e)}
     
+# Delete a resume vector by email
+def delete_resume_by_email(email: str):
+    try:
+        # Use the Pinecone client (index)
+        response = index.delete(filter={"email": {"$eq": email}})
+        logger.info(f"Deleted previous resume for {email} from Pinecone")
+        return {"status": "deleted", "response": response}
+    except Exception as e:
+        logger.error(f"Failed to delete resume for {email}: {e}")
+        return {"error": str(e)}

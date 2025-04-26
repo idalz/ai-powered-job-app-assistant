@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Body
+from fastapi import APIRouter, UploadFile, File, HTTPException, Body, Depends
 from fastapi.responses import JSONResponse
 import os
 from uuid import uuid4
@@ -6,7 +6,11 @@ from app.core.logger import logger
 from app.core.rag import store_resume, search_resumes
 from app.core.llm import extract_resume_info
 from app.services.resume_parser import parse_pdf_resume, parse_docx_resume
-
+from sqlalchemy.orm import Session
+from app.db.deps import get_db
+from app.crud.user_crud import get_user_info
+from app.models.users import UserInfo
+from app.core.rag import delete_resume_by_email, store_resume 
 
 UPLOAD_DIR = "app/uploads" # Store uploads here
 
@@ -18,7 +22,8 @@ router = APIRouter()
 @router.post("/upload")
 async def upload_resume(
     file: UploadFile = File(...),
-    name: str = Body(default="", embed=True)
+    email: str = Body(..., embed=True),
+    db: Session = Depends(get_db)
 ):
     # Read file and create path
     if not file.filename.endswith((".pdf", ".docx", ".txt")):
@@ -39,6 +44,25 @@ async def upload_resume(
         parsed_text = parse_pdf_resume(file_path)
     else:
         parsed_text = parse_docx_resume(file_path)
+
+    # Update Resume in Database
+    user_info = db.query(UserInfo).filter(UserInfo.email == email).first()
+    if not user_info:
+        raise HTTPException(status_code=404, detail="User not found.")
+    
+    user_info.resume = parsed_text  
+    db.commit()
+    db.refresh(user_info)
+
+    # Manage Resume in Vectorstore
+    pinecone_store_result = None
+    try: 
+        delete_resume_by_email(email) # Delete old vector (if exists)
+    except Exception as e:
+        logger.warning(f"No previous resume to delete for {email}: {str(e)}")
+
+    # Then store new resume
+    pinecone_store_result = store_resume(parsed_text, metadata={"email": email})
 
     # LLM info extraction
     extracted_info = extract_resume_info(parsed_text)
