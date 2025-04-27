@@ -71,10 +71,11 @@ def update_user_info(db: Session, email: str, updated_info: dict):
 
     return {"message": "User info updated successfully!"}
 
+# Get user's info
 def get_user_info(db: Session, email: str):
-    # Find user info by email
-    user_info = db.query(UserInfo).filter(UserInfo.email == email).first()
-    if not user_info:
-        raise ValueError("User info not found.")
+    return db.query(UserInfo).filter(UserInfo.email == email).first()
 
-    return user_info
+# Get users' info (for recruiters)
+def get_users_by_emails(db: Session, emails: list[str]):
+    # Get back all users with the given emails
+    return db.query(UserInfo).filter(UserInfo.email.in_(emails)).all()

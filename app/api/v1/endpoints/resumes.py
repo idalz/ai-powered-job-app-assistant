@@ -2,8 +2,8 @@ from fastapi import APIRouter, UploadFile, File, HTTPException, Body, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.core.logger import logger
-from app.core.rag import store_resume, search_resumes, delete_resume_by_email
 from app.core.llm import extract_resume_info
+from app.core.rag import store_resume, search_resumes, delete_resume_by_email
 from app.services.resume_parser import parse_pdf_resume, parse_docx_resume
 from app.db.deps import get_db
 from app.crud.resumes import update_resume
@@ -62,17 +62,16 @@ async def upload_resume(
 
     pinecone_store_result = store_resume(parsed_text, metadata={"email": email})
 
-    # Extract resume info using LLM
-    extracted_info = extract_resume_info(parsed_text)
-
     # Return response
-    return JSONResponse(content={
-        "message": "Resume uploaded, parsed, and updated successfully.",
-        "file_path": file_path,
-        "parsed_text": parsed_text,
-        "extracted_info": extracted_info,
-        "pinecone_store": pinecone_store_result
-    })
+    return JSONResponse(content={"message": "Resume uploaded and processed successfully."})
+
+# Extract structured info from resume text using LLM.
+@router.post("/extract-resume-info", dependencies=[Depends(JWTBearer())])
+async def extract_info_from_resume(
+    resume_text: str = Body(..., embed=True),
+):
+    extracted = extract_resume_info(resume_text)
+    return JSONResponse(content=extracted)
 
 # Store a resume
 @router.post("/store", dependencies=[Depends(JWTBearer())])
