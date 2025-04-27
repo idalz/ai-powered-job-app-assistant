@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.deps import get_db
-from app.schemas.users import UserCreate, UserLogin
+from app.schemas.users import UserCreate
 from app.crud.user_crud import register_user, authenticate_user, get_user_info, update_user_info
 from app.api.deps.current_user import get_current_user_payload
 
@@ -16,16 +16,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-# Login 
-@router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = authenticate_user(db, user.email, user.password)
-    if not db_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-    return {"message": "Login successful!"}
-
 # Read user info
-@router.get("/user/info")
+@router.get("/info")
 def read_user_info(current_user: dict = Depends(get_current_user_payload), db: Session = Depends(get_db)):
     email = current_user.get("email")
     try:
@@ -35,7 +27,7 @@ def read_user_info(current_user: dict = Depends(get_current_user_payload), db: S
         raise HTTPException(status_code=404, detail=str(e))
 
 # Update user info
-@router.put("/user/info")
+@router.put("/info")
 def update_user(updated_fields: dict, current_user: dict = Depends(get_current_user_payload), db: Session = Depends(get_db)):
     email = current_user.get("email")
     try:

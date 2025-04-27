@@ -7,7 +7,7 @@ from app.api.deps.jwt_bearer import JWTBearer
 router = APIRouter()
 
 # Search best matching candidates
-@router.post("/search-candidates", dependencies=[Depends(JWTBearer())])
+@router.post("/candidates", dependencies=[Depends(JWTBearer())])
 def search_candidates(
     job_description: str = Body(..., embed=True)
 ):
