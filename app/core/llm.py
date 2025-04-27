@@ -13,14 +13,20 @@ llm = ChatOpenAI(
 def extract_resume_info(resume_text: str) -> dict:
     try:
         prompt = ChatPromptTemplate.from_template("""
-        Extract the following information from the given resume text:
+        Extract the following information from the given resume text as a JSON:
         - Full Name
         - Email
+        - Phone
+        - Github
+        - LinkedIn
         - Skills
         - Work Experience
         - Education
         - Summary
         - Extra achievements or projects
+                                                  
+        Instructions:
+        If a category is not given return a blank ("").
 
         Resume:
         {resume_text}
@@ -67,7 +73,7 @@ def extract_job_info(job_text: str) -> dict:
 def match_resume_to_job(resume_info: str, job_info: str) -> dict:
     try:
         prompt = ChatPromptTemplate.from_template("""
-        Compare the following resume with the job description.
+        Compare the following resume information with the job description.
 
         Resume Info:
         {resume_info}
@@ -75,9 +81,19 @@ def match_resume_to_job(resume_info: str, job_info: str) -> dict:
         Job Description Info:
         {job_info}
 
-        Return:
-        - A brief assessment of how well the resume fits the job
-        - A list of missing skills or qualifications
+        Instructions:
+        - When comparing skills, understand common abbreviations and versions:
+            - Python 3 is considered the same as Python
+            - JS is the same as JavaScript
+            - BUT Java is NOT JavaScript
+            - C# is NOT the same as C or C++
+        - Focus on practical relevance, not exact wording.
+        - If a skill is logically equivalent, treat it as matching.
+        - If a skill is different (even if similar sounding), treat it as missing.
+
+        Return the following clearly:
+        - A brief overall assessment of how well the resume fits the job
+        - A bullet list of missing skills or qualifications
         - A match score out of 100%
         """)  
 
@@ -107,7 +123,7 @@ def generate_cover_letter(resume_info: str, job_info: str, guidelines: str = "")
         - Address the hiring team (no specific name)
         - Mention how the applicant fits the role
         - Highlight relevant skills and experience
-        {guidelines}
+        - Extra guidelines given by the user: {guidelines}
 
         Cover Letter:                                    
         """)
