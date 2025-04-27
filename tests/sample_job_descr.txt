@@ -1,0 +1,28 @@
+Position: Junior Machine Learning Engineer
+Location: Amsterdam, Netherlands
+
+Job Description:
+We are seeking a passionate Junior Machine Learning Engineer to join our growing AI team in Amsterdam.
+The ideal candidate will have strong knowledge of Python, experience with machine learning frameworks, and familiarity with data science workflows.
+
+Responsibilities:
+
+Develop, test, and deploy machine learning models.
+
+Work with data pipelines and ETL processes.
+
+Collaborate with cross-functional teams to integrate ML solutions.
+
+Requirements:
+
+Proficiency in Python
+
+Experience with Scikit-learn, TensorFlow, or PyTorch
+
+Knowledge of SQL and databases
+
+Familiarity with cloud platforms like AWS or Azure
+
+Strong problem-solving and communication skills
+
+Bachelor’s degree in Computer Science, Engineering, or related field
