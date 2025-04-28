@@ -1,0 +1,33 @@
+# Python junk
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+
+# Git files
+.git/
+.gitignore
+
+# Environment files
+.env
+.env.db
+
+# Docker files themselves 
+Dockerfile
+Dockerfile.backend
+Dockerfile.frontend
+docker-compose.yml
+
+# Testing and temp files
+.pytest_cache/
+tests/
+pytest.ini
+
+# Uploads and media
+uploads/
+app_screenshots/
+
+# Log files
+*.log

@@ -10,9 +10,8 @@ python-multipart
 pdfplumber
 python-docx
 python-dotenv
-streamlit
-alembic 
-psycopg2
+alembic
+psycopg2-binary
 passlib[bcrypt]
 python-jose[cryptography]
 pydantic[email]
