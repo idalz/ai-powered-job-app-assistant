@@ -164,7 +164,7 @@ If you would like to run tests, ensure you installed `pytest`:
 pip install pytest
 ```
 
-For now tests has not been connected to a database. Run only input/output tests for endpoints and llm tests.
+Currently, tests are not connected to a database.. Run only input/output tests for endpoints and llm tests.
 
 ---
 ## License
