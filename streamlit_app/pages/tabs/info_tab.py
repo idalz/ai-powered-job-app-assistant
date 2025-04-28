@@ -4,7 +4,6 @@ from typing import Dict, Any
 def show(user_info: Dict[str, Any], api_client):
     st.subheader("Your Personal Info 📄")
 
-    st.title(user_info.get("email"))
     # Resume Upload Section
     uploaded_file = st.file_uploader("Upload your updated resume", type=["pdf", "docx"])
 
