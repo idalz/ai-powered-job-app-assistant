@@ -2,28 +2,29 @@
 
 FROM python:3.13-slim
 
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Set the working directory to /app (where your backend code lives)
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y bash netcat-openbsd gcc libpq-dev
+RUN apt-get update && apt-get install -y netcat-openbsd gcc
 
 # Install Python dependencies
 COPY requirements.backend.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.backend.txt
 
-# Copy backend app code
-COPY ./app ./app
+RUN pip install --no-cache-dir -r requirements.backend.txt
 
-# Copy Alembic config
-COPY alembic.ini .
+# Copy the entire app directory into the container's /app directory
+COPY . .
 
-# Copy start script
+# Copy the start script
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
 # Expose backend port
 EXPOSE 8000
 
-# Start backend
+# Start FastAPI using Uvicorn
 CMD ["/start.sh"]

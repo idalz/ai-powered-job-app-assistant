@@ -16,6 +16,7 @@ config = context.config
 # Use DATABASE_URL from .env
 database_url = settings.DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://")
 config.set_main_option("sqlalchemy.url", database_url)
+#config.set_main_option("sqlalchemy.url", "postgresql+psycopg2://postgres:2486@db/job_app_db")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
