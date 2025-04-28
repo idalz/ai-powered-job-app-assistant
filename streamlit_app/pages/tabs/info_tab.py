@@ -1,21 +1,18 @@
 import streamlit as st
 from typing import Dict, Any
-from services.api_client import APIClient
 
-api_client = APIClient(token=st.session_state.access_token)
+def show(user_info: Dict[str, Any], api_client):
+    st.subheader("Your Personal Info 📄")
 
-def show(user_info: Dict[str, Any]):
-    st.subheader("Your Personal Info")
-
+    st.title(user_info.get("email"))
     # Resume Upload Section
     uploaded_file = st.file_uploader("Upload your updated resume", type=["pdf", "docx"])
 
     if st.button("Update Resume") and uploaded_file is not None and user_info.get("email"):
         with st.spinner("Uploading your resume..."):
             files = {"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
-            data = {"email": user_info.get("email")}
             try:
-                response = api_client.post("resumes/upload", data=data, files=files)
+                response = api_client.post("resumes/upload", files=files)
                 if response.status_code == 200:
                     st.success("Resume uploaded and updated successfully!")
                 else:

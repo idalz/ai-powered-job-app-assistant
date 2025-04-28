@@ -1,10 +1,11 @@
 import streamlit as st
-from services.api_client import APIClient
+import json
+import docx
+import pdfplumber
+import io
 
-def show():
-    st.subheader("🧠 Extract Resume Information")
-
-    api_client = APIClient(token=st.session_state.access_token)
+def show(api_client):
+    st.subheader("Extract Resume Information 🧠")
 
     uploaded_file = st.file_uploader(
         "Upload a Resume (PDF, DOCX, or TXT)",
@@ -45,9 +46,6 @@ def show():
 
 # Small helpers to extract text from files
 def extract_text_from_pdf(file_content: bytes) -> str:
-    import pdfplumber
-    import io
-
     text = ""
     with pdfplumber.open(io.BytesIO(file_content)) as pdf:
         for page in pdf.pages:
@@ -58,15 +56,12 @@ def extract_text_from_pdf(file_content: bytes) -> str:
     return text
 
 def extract_text_from_docx(file_content: bytes) -> str:
-    import docx
-    import io
     doc = docx.Document(io.BytesIO(file_content))
     text = "\n".join([para.text for para in doc.paragraphs])
     return text
 
 # Display extracted fields
 def display_extracted_info(extracted_info_text: str):
-    import json
     try:
         extracted_info = json.loads(extracted_info_text)
     except Exception:
@@ -111,7 +106,7 @@ def display_extracted_info(extracted_info_text: str):
         st.markdown("### 🎓 Education")
         for edu in extracted_info["Education"]:
             st.markdown(f"- {edu}")
-
+ 
     if extracted_info.get("Extra achievements or projects"):
         st.markdown("### 🏆 Achievements / Projects")
         for proj in extracted_info["Extra achievements or projects"]:

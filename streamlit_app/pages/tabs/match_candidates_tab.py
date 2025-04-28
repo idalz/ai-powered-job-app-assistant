@@ -1,14 +1,12 @@
 import streamlit as st
 from services.api_client import APIClient
 
-def show():
+def show(api_client):
     st.subheader("Match Candidates 🎯")
-
-    api_client = APIClient(token=st.session_state.access_token)
 
     job_description = st.text_area("Paste the job description here:")
 
-    if st.button("Find Best Candidates 🚀"):
+    if st.button("Find Best Candidates"):
         if not job_description.strip():
             st.warning("Please paste a job description first.")
             return

@@ -1,9 +1,6 @@
 import streamlit as st
-from services.api_client import APIClient
 
-api_client = APIClient(token=st.session_state.access_token)
-
-def show():
+def show(api_client):
     st.subheader("Cover Letter Generator 📝")
 
     job_info = st.text_area("Paste the job description here:", key="cover_letter_job_info")

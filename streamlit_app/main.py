@@ -14,11 +14,11 @@ st.markdown(
     ## Empower Your Job Search with AI
 
     Upload your resume, analyze job descriptions, generate tailored cover letters,
-    or find your perfect match instantly!
+    extract resume info or find your perfect match instantly!
 
     ---
     """
-)
+)  
 
 st.write("Already have an account?")
 if st.button("Login"):

@@ -58,15 +58,15 @@ selected_tab = st.sidebar.radio("Select a page:", tab_titles)
 
 # Show selected tab
 if selected_tab == "Info":
-    info_tab.show(user_info)
+    info_tab.show(user_info, api_client)
 elif selected_tab == "Job Analysis":
-    job_analysis_tab.show()
+    job_analysis_tab.show(api_client)
 elif selected_tab == "Cover Letter":
-    cover_letter_tab.show()
+    cover_letter_tab.show(api_client)
 elif selected_tab == "Extract Resume Info":
-    extract_resume_tab.show()
+    extract_resume_tab.show(api_client)
 elif selected_tab == "Match Candidates" and user_info.get("is_recruiter"):
-    match_candidates_tab.show()
+    match_candidates_tab.show(api_client)
 
 # Sidebar logout button
 if st.sidebar.button("Logout"):
@@ -74,4 +74,5 @@ if st.sidebar.button("Logout"):
     st.session_state.access_token = None
     st.session_state.user_info = None
     st.success("Logged out successfully.")
+    st.rerun()
     st.switch_page("main.py")

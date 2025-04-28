@@ -19,11 +19,11 @@ def extract_resume_info(resume_text: str) -> dict:
         - Phone
         - Github
         - LinkedIn
-        - Skills
-        - Work Experience
-        - Education
+        - Skills (be careful! try to return the whole skill name, not just a letters of it!)
+        - Work Experience (Be careful! Return the whole experience, not just letters of it! Also for each one make it a summary instead of nested list!)
+        - Education (Return it as a whole for each education bullet: ex. bachelor, university name, location, year. Also for each one make it a summary instead of nested list! )
         - Summary
-        - Extra achievements or projects
+        - Extra achievements or projects (Be careful! Return the whole achievements or projects, not just a letters of it! Also for each one make it a summary instead of nested list! )
                                                   
         Instructions:
         If a category is not given return a blank ("").

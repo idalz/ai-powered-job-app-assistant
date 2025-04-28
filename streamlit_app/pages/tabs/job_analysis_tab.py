@@ -1,10 +1,7 @@
 import streamlit as st
-from services.api_client import APIClient
 import re
 
-api_client = APIClient(token=st.session_state.access_token)
-
-def show():
+def show(api_client):
     st.subheader("Job Analysis 🧠")
 
     job_text = st.text_area("Paste the job description here:", key="job_analysis_job_text")
@@ -21,7 +18,26 @@ def show():
                 if response.status_code == 200:
                     extracted_info = response.json()
                     st.success("Job analysis completed!")
-                    st.json(extracted_info)
+
+                    # Displaying the extracted information as individual fields
+                    st.markdown("### Extracted Job Information")
+                    
+                    # Extracting each field with default fallback value "Not mentioned"
+                    job_title = extracted_info.get('job_title', 'Not mentioned')
+                    location = extracted_info.get('location', 'Not mentioned')
+                    experience_level = extracted_info.get('experience_level', 'Not mentioned')
+                    description = extracted_info.get('description', 'Not mentioned')
+                    company = extracted_info.get('company', 'Not mentioned')
+                    skills = ', '.join(extracted_info.get('skills', ['Not mentioned']))
+
+                    # Display the information
+                    st.write(f"**Job Title**: {job_title}")
+                    st.write(f"**Location**: {location}")
+                    st.write(f"**Experience Level**: {experience_level}")
+                    st.write(f"**Description**: {description}")
+                    st.write(f"**Company Name**: {company}")
+                    st.write(f"**Required Skills**: {skills}")
+
                 else:
                     st.error(f"Failed to analyze job: {response.json().get('detail', 'Unknown error')}")
             except Exception as e:
