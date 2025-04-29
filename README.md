@@ -133,7 +133,7 @@ This  will  build and start all the containers(backend, frontend, db), persist d
 ---
 ## Development
 
-Running locally without Docker follow instruction above. Also:
+If you'd like to run locally (without Docker), follow the instruction above. Also:
 
 1. Run `alembic` Migrations Locally:
 ```bash
