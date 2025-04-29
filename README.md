@@ -77,7 +77,6 @@ Recruiters have an extra tab!
 - See key details of a resume
 
 ![resume_tab](app_screenshots/resume.png)
-
 ![resume_tab](app_screenshots/resume-extract.png)
 
 -  Find ideal candidates (only for recruiters)
