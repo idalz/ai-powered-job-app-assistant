@@ -61,7 +61,7 @@ Recruiters have an extra tab!
 
 ![info_tab_recruiter](app_screenshots/recruiters.png)
 
-- Analyse jobs and see compatibility with your resume
+- Analyze jobs and see compatibility with your resume
 
 ![job_analysis_tab](app_screenshots/job-analysis.png)
 ![job_analysis_tab](app_screenshots/job-analysis-job.png)
@@ -69,8 +69,8 @@ Recruiters have an extra tab!
 
 - Generate a cover letter with custom guidelines
 
-![coner_letter_tab](app_screenshots/cover-letter.png)
-![coner_letter_tab](app_screenshots/cover-letter-generate.png)
+![cover_letter_tab](app_screenshots/cover-letter.png)
+![cover_letter_tab](app_screenshots/cover-letter-generate.png)
 
 - See key details of a resume
 
@@ -162,7 +162,7 @@ If you would like to run tests, ensure you installed `pytest`:
 pip install pytest
 ```
 
-Currently, tests are not connected to a database.. Run only input/output tests for endpoints and llm tests.
+Currently, tests are not connected to a database. Run only input/output tests for endpoints and llm tests.
 
 ---
 ## License
