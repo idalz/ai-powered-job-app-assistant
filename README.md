@@ -1,8 +1,6 @@
 # AI-Powered Job Application Assistant
 
-An AI-driven assistant build with **Langchain**, **OpenAI**, **Pinecone**, **FastAPI**, **PostgreSQL** and **Streamlit**. 
-
-Users can create profiles, upload resumes, extract key details from job descriptions and resumes, evaluate their compatibility with specific jobs, and generate personalized cover letters. Recruiters can also find ideal candidates using the power of Retrieval-Augmented Generation.
+A **LangChain**-based app using **OpenAI**, **Pinecone**, and **FastAPI** to compare resumes with job descriptions, generate tailored cover letters, and perform recruiter-driven candidate search via **RAG**. Features include **Streamlit** UI, **JWT auth** and **PostgreSQL**.  
 
 ---
 
@@ -165,6 +163,10 @@ pip install pytest
 ```
 
 Currently, tests are not connected to a database.. Run only input/output tests for endpoints and llm tests.
+
+---
+## License
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 ## License
