@@ -167,8 +167,3 @@ Currently, tests are not connected to a database.. Run only input/output tests f
 ---
 ## License
 This project is licensed under the [MIT License](LICENSE).
-
----
-## License
-
-This project is licensed under the MIT License.
