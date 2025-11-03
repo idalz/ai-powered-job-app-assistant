@@ -2,7 +2,7 @@
 
 > **AI-Powered Job Application Assistant**
 
-A modern, production-ready application that leverages **GPT-4o-mini**, **LangChain**, **Pinecone**, and **FastAPI** to intelligently match resumes with job descriptions, generate tailored cover letters, and enable recruiter-driven candidate search via **RAG** (Retrieval-Augmented Generation).
+A modern, production-ready application that leverages **GPT-4o-mini**, **LangChain**, **Pinecone**, and **FastAPI** to intelligently match resumes with job descriptions, generate tailored cover letters, and enable recruiter-driven candidate search via **semantic vector search**.
 
 **🚀 [Live Demo](https://your-railway-app.railway.app)** *(Coming soon)*
 
@@ -11,7 +11,7 @@ A modern, production-ready application that leverages **GPT-4o-mini**, **LangCha
 ✅ **Secure Authentication** - JWT-based auth with rate limiting (5 login attempts/min)
 ✅ **Resume Analysis** - AI-powered resume parsing and job matching
 ✅ **Cover Letter Generation** - Personalized cover letters with custom guidelines
-✅ **Recruiter Tools** - RAG-powered candidate search in vector database
+✅ **Recruiter Tools** - Semantic vector search for candidate matching in Pinecone
 ✅ **Production-Ready** - CORS protection, MIME type validation, file size limits (10MB)
 ✅ **Modern Stack** - FastAPI, Streamlit, PostgreSQL, Pinecone, GPT-4o-mini  
 
@@ -35,7 +35,7 @@ A modern, production-ready application that leverages **GPT-4o-mini**, **LangCha
     1. Extract key details from job descriptions or resumes.
     2. Compare resumes to job descriptions and calculate a match score.
     3. Generate personalized cover letters based on job descriptions with custom guidelines.
-- **RAG** using Pinecone Vector Store, enabling recruiters to find the ideal candidates with a single click.
+- **Semantic vector search** using Pinecone Vector Store, enabling recruiters to find the ideal candidates with a single click.
 - **Secure login and account management** using JWT tokens.
 - **Data storage** in a PostgreSQL database to securely save user information.
 - Simple and user-friendly interface built with Streamlit.
