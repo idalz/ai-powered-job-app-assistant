@@ -1,22 +1,51 @@
 # Dockerfile.frontend
 
-FROM python:3.13-slim
+# Builder Stage
+FROM python:3.13-slim as builder
 
-WORKDIR /streamlit_app
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y bash
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.frontend.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.frontend.txt
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Copy frontend Streamlit app code
-COPY ./streamlit_app .
+WORKDIR /app
 
-# Expose Streamlit port
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies
+RUN uv sync --frozen --no-dev
+
+# Production Stage
+FROM python:3.13-slim as production
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/.venv/bin:$PATH"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Create non-root user FIRST (before copying files)
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Copy virtual environment from builder WITH ownership (avoids duplicate layer)
+COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+
+# Copy frontend app code WITH ownership
+COPY --chown=appuser:appuser streamlit_app/ ./streamlit_app/
+
+USER appuser
+
 EXPOSE 8501
 
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8501/_stcore/health || exit 1
+
 # Start Streamlit app
-CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "streamlit_app/main.py", "--server.port=8501", "--server.address=0.0.0.0"]

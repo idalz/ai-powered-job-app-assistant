@@ -31,15 +31,16 @@ A **LangChain**-based app using **OpenAI**, **Pinecone**, and **FastAPI** to com
 
 ## Tech Stack
 
-- **Backend**: FastAPI, SQLAlchemy, Alembic
+- **Backend**: FastAPI, SQLAlchemy 2.0, Alembic
 - **Frontend**: Streamlit
-- **AI**: LangChain, OpenAI API
+- **AI**: LangChain 1.0+, OpenAI API
 - **Vector Database**: Pinecone
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL 15 with psycopg3
 - **Authentication**: JWT (JSON Web Tokens)
 - **Containerization**: Docker
+- **Package Manager**: uv (fast Python package installer)
 - **Testing**: Pytest
-- **Environment Management**: Python 3.11+
+- **Environment**: Python 3.13+
 
 ---
 
@@ -85,81 +86,120 @@ Recruiters have an extra tab!
 
 ## How to Install
 
-1. Clone the repository
+### Prerequisites
+- **Docker** and **Docker Compose**
+- **Python 3.13+** (for local development)
+- **uv** package manager (for local development)
+
+### Quick Start with Docker (Recommended)
+
+1. **Clone the repository**
 ```bash
 git clone https://github.com/idalz/ai-powered-job-app-assistant.git
+cd ai-powered-job-app-assistant
 ```
-2. Create a virtual environment
+
+2. **Set up environment variables**
+
+Copy the example file and fill in your credentials:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+cp .env.example .env
 ```
 
-3. Install dependencies
-```bash 
-pip install -r requirements.backend.txt
-pip install -r requirements.frontend.txt
-```
+Edit `.env` and add your keys:
+```env
+OPENAI_API_KEY=your-openai-api-key-here
+PINECONE_API_KEY=your-pinecone-api-key-here
+PINECONE_INDEX_NAME=your-pinecone-index-name
 
-4. Set up environment variables (root folder)
-- `.env`
-```
-OPENAI_API_KEY=<your-openai-api-key>
-PINECONE_API_KEY=<your-pinecone-api-key>
-PINECONE_INDEX_NAME=<your-pinecone-index-name>
-API_URL=http://localhost:8000/api/v1/endpoints/
-DATABASE_URL=postgresql://<your-username>:<your-password>@db/job_app_db
-SECRET_KEY=<your-jwt-secret-key>
-```
-- `.env.db`
-```
-POSTGRES_USER=<your-username>
-POSTGRES_PASSWORD=<your-password>
+POSTGRES_USER=your-username
+POSTGRES_PASSWORD=your-password
 POSTGRES_DB=job_app_db
-``` 
 
-5. Docker Setup:
+DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+SECRET_KEY=your-secret-key-here-change-this-in-production
+```
 
-Run the following command to start the application and database container:
+3. **Start the application**
 ```bash
 docker-compose up --build
 ```
-This  will  build and start all the containers(backend, frontend, db), persist data in a Docker volume so database content is saved and run Alembic Migrations automatically!
 
-6. The application will run at http://localhost:8501
+This will:
+- Pull PostgreSQL 15 image
+- Build backend and frontend containers
+- Run database migrations automatically
+- Persist data in a Docker volume
+
+4. **Access the application**
+- **Frontend (Streamlit)**: http://localhost:8501
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
 
 ---
 ## Development
 
-If you'd like to run locally (without Docker), follow the instruction above. Also:
+### Local Development (without Docker)
 
-1. Run `alembic` Migrations Locally:
+1. **Install uv** (if not already installed)
 ```bash
-alembic upgrade head
+# On macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# On Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-2. Run the `FastAPI` app:
+2. **Install dependencies**
 ```bash
-uvicorn app.main:app --reload
+# Install all dependencies (backend + frontend)
+uv sync --all-groups
 ```
 
-3. Run the `streamlit` app:
+3. **Set up environment variables**
+
+Update your `.env` to use `localhost` for the database:
+```env
+DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:15432/${POSTGRES_DB}
+```
+
+4. **Start PostgreSQL** (if not using Docker)
 ```bash
-streamlit run streamlit_app/main.py
+# Or start just the database container
+docker-compose up db -d
 ```
 
-You may need to change the `DATABASE_URL` to `localhost`:
+5. **Run database migrations**
+```bash
+uv run alembic upgrade head
 ```
-DATABASE_URL=postgresql://<your-username>:<your-password>@localhost/job_app_db
-...
+
+6. **Run the FastAPI backend**
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+7. **Run the Streamlit frontend** (in a separate terminal)
+```bash
+uv run streamlit run streamlit_app/main.py
+```
+
+### Adding Dependencies
+
+```bash
+# Backend dependencies
+uv add package-name
+
+# Frontend dependencies
+uv add --group frontend package-name
 ```
 
 ---
-## Testing 
+## Testing
 
-If you would like to run tests, ensure you installed `pytest`:
+Run tests using uv:
 ```bash
-pip install pytest
+uv run pytest
 ```
 
 Currently, tests are not connected to a database. Run only input/output tests for endpoints and llm tests.

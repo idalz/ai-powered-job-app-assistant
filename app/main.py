@@ -15,3 +15,8 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api/v1/endpoints")
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Docker healthcheck"""
+    return {"status": "healthy"}

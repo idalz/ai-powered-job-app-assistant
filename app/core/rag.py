@@ -6,30 +6,25 @@ from app.core.logger import logger
 import time
 
 # Embedding model
-embeddings = OpenAIEmbeddings(openai_api_key=settings.OPENAI_API_KEY)
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-small",
+    openai_api_key=settings.OPENAI_API_KEY
+)
 
 # Init Pinecone client
 pc = Pinecone(api_key=settings.PINECONE_API_KEY)
 
-# Check if index exists
-if settings.PINECONE_INDEX_NAME not in [i["name"] for i in pc.list_indexes()]:
-    pc.create_index(
-        name=settings.PINECONE_INDEX_NAME,
-        dimension=1536,
-        metric="cosine",
-        spec=ServerlessSpec(cloud="aws", region="us-east-1")
-    )
-    # Wait until the index is ready
-    while not pc.describe_index(settings.PINECONE_INDEX_NAME).status["ready"]:
-        time.sleep(1)
-
-# Connect to the index
+# Connect to the index (must be created manually in Pinecone dashboard)
 index = pc.Index(settings.PINECONE_INDEX_NAME)
 
 
-# Create pinecone vectorstore
+# Create pinecone vectorstore with namespace
 def get_vectorstore() -> PineconeVectorStore:
-    return PineconeVectorStore(index=index, embedding=embeddings)
+    return PineconeVectorStore(
+        index=index,
+        embedding=embeddings,
+        namespace=settings.PINECONE_NAMESPACE
+    )
 
 # Store resume in pinecone vectorstore
 def store_resume(text: str, metadata: dict = None):
@@ -55,9 +50,12 @@ def search_resumes(query: str, k: int = 3):
 # Delete a resume vector by email
 def delete_resume_by_email(email: str):
     try:
-        # Use the Pinecone client (index)
-        response = index.delete(filter={"email": {"$eq": email}})
-        logger.info(f"Deleted previous resume for {email} from Pinecone")
+        # Use the Pinecone client (index) with namespace
+        response = index.delete(
+            filter={"email": {"$eq": email}},
+            namespace=settings.PINECONE_NAMESPACE
+        )
+        logger.info(f"Deleted previous resume for {email} from Pinecone namespace {settings.PINECONE_NAMESPACE}")
         return {"status": "deleted", "response": response}
     except Exception as e:
         logger.error(f"Failed to delete resume for {email}: {e}")

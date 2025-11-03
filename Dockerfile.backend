@@ -1,30 +1,55 @@
 # Dockerfile.backend
 
-FROM python:3.13-slim
+# Builder Stage
+FROM python:3.13-slim as builder
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
 
-# Set the working directory to /app (where your backend code lives)
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends gcc curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y netcat-openbsd gcc
+COPY pyproject.toml uv.lock ./
 
-# Install Python dependencies
-COPY requirements.backend.txt .
+# Install dependencies
+RUN uv sync --frozen --no-dev
 
-RUN pip install --no-cache-dir -r requirements.backend.txt
+# Production Stage
+FROM python:3.13-slim as production
 
-# Copy the entire app directory into the container's /app directory
-COPY . .
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PATH="/app/.venv/bin:$PATH"
 
-# Copy the start script
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Install only runtime dependencies (no gcc)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Expose backend port
+WORKDIR /app
+
+# Create non-root user FIRST (before copying files)
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Copy virtual environment from builder WITH ownership (avoids duplicate layer)
+COPY --from=builder --chown=appuser:appuser /app/.venv /app/.venv
+
+# Copy application code WITH ownership
+COPY --chown=appuser:appuser app/ ./app/
+COPY --chown=appuser:appuser alembic/ ./alembic/
+COPY --chown=appuser:appuser alembic.ini ./
+
+USER appuser
+
 EXPOSE 8000
 
-# Start FastAPI using Uvicorn
-CMD ["/start.sh"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Default command (overridden by docker-compose for migrations)
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,12 +1,12 @@
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from app.core.config import settings
 from app.core.logger import logger
 import json 
 
 llm = ChatOpenAI(
     temperature=0.2,
-    model="gpt-3.5-turbo",
+    model="gpt-4o-mini",
     openai_api_key=settings.OPENAI_API_KEY
 )
 

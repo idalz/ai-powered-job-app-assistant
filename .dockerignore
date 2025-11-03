@@ -5,6 +5,8 @@ __pycache__/
 
 # Virtual environment
 venv/
+.venv/
+*.egg-info/
 
 # Git files
 .git/
