@@ -155,24 +155,28 @@ cp .env.example .env
 
 Edit `.env` with your credentials:
 ```env
-# OpenAI & Pinecone
-OPENAI_API_KEY=your-openai-api-key
-PINECONE_API_KEY=your-pinecone-api-key
-PINECONE_INDEX_NAME=your-index-name
-PINECONE_NAMESPACE=jobmatch
+# OpenAI Configuration
+OPENAI_API_KEY=your-openai-api-key-here
 
-# Database (use localhost for local dev)
-POSTGRES_USER=your-username
-POSTGRES_PASSWORD=your-password
-POSTGRES_DB=jobmatch_db
+# Pinecone Configuration
+PINECONE_API_KEY=your-pinecone-api-key-here
+PINECONE_INDEX_NAME=
+PINECONE_NAMESPACE=
+
+# API Configuration
+API_URL=http://localhost:8000/api/v1/endpoints/
+
+# CORS Configuration (comma-separated list of allowed origins)
+CORS_ORIGINS=http://localhost:8501,http://localhost:8000
+
+# PostgreSQL Database Container Configuration
+POSTGRES_USER=user
+POSTGRES_PASSWORD=your-secure-password-here
+POSTGRES_DB=fb
 DATABASE_URL=postgresql+psycopg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:15432/${POSTGRES_DB}
 
-# Security
-SECRET_KEY=your-secret-key-min-32-chars
-CORS_ORIGINS=http://localhost:8501,http://localhost:3000
-
-# API Config
-API_URL=http://localhost:8000/api/v1/endpoints/
+# JWT Secret Key
+SECRET_KEY=your-secret-key-min-32-chars-here
 ```
 
 5. **Start PostgreSQL** (using Docker)
