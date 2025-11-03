@@ -11,7 +11,10 @@ router = APIRouter()
 
 # Job info
 @router.post("/job-info")
-async def parse_job_description(job_text: str = Body(..., embed=True)):
+async def parse_job_description(
+    job_text: str = Body(..., embed=True),
+    current_user: dict = Depends(get_current_user_payload)
+):
     logger.info("Received job description for parsing")
     
     if not job_text.strip():

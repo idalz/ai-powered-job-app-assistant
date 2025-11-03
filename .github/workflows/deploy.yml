@@ -1,0 +1,71 @@
+name: Deploy to Railway
+
+# DISABLED: Currently using Railway auto-deploy instead
+# To enable: Remove the `if: false` conditions below and add RAILWAY_TOKEN to GitHub Secrets
+# Get token from: Railway Dashboard → Account Settings → Tokens
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: false  # Disabled - using Railway auto-deploy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install UV
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Run linting (Ruff)
+        run: |
+          # Install ruff for code quality check
+          uv add --dev ruff
+          uv run ruff check app/ streamlit_app/
+        continue-on-error: true
+
+      - name: Test imports (smoke test)
+        run: |
+          # Test that Python can import main modules
+          uv run python -c "from app.main import app; print('✅ Backend imports OK')"
+          uv run python -c "import streamlit; print('✅ Frontend imports OK')"
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: false  # Disabled - using Railway auto-deploy
+    # To enable: Change to: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway login --token $RAILWAY_TOKEN
+          railway up --detach
+
+      - name: Deployment Success
+        run: |
+          echo "🚀 Successfully deployed to Railway!"
+          echo "Check deployment status at: https://railway.app"

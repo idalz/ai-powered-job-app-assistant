@@ -1,0 +1,52 @@
+# Railway ignore file - don't upload these to Railway
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local development
+.env
+.env.local
+*.log
+
+# Uploads (will be regenerated)
+app/uploads/
+
+# Git
+.git/
+.gitignore
+
+# Documentation (keep README.md for Railway)
+LICENSE
+
+# Docker (not used in Railway)
+Dockerfile*
+docker-compose.yml
+.dockerignore
+
+# App test files
+app_test_files/

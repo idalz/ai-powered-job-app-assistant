@@ -11,9 +11,11 @@ from app.api.deps.jwt_bearer import JWTBearer
 from app.api.deps.current_user import get_current_user_payload
 
 import os
+import magic
 from uuid import uuid4
 
 UPLOAD_DIR = "app/uploads" # Store uploads here
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB limit
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -27,18 +29,40 @@ async def upload_resume(
     db: Session = Depends(get_db)
 ):
     email = current_user.get("email")
-    
-    # Validate file type
+
+    # Validate file type by extension
     if not file.filename.endswith((".pdf", ".docx", ".txt")):
-        logger.warning(f"Rejected file upload: {file.filename}")
+        logger.warning(f"Rejected file upload (bad extension): {file.filename}")
         raise HTTPException(status_code=400, detail="Only .pdf, .docx, or .txt files are supported.")
+
+    # Read file contents
+    contents = await file.read()
+
+    # Validate file size (10MB limit)
+    if len(contents) > MAX_FILE_SIZE:
+        logger.warning(f"File too large: {file.filename} ({len(contents)} bytes)")
+        raise HTTPException(status_code=400, detail=f"File too large. Maximum size is {MAX_FILE_SIZE / 1024 / 1024}MB.")
+
+    # Validate MIME type (check actual file content, not just extension)
+    mime = magic.from_buffer(contents, mime=True)
+    allowed_mimes = [
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # .docx
+        "text/plain"
+    ]
+
+    if mime not in allowed_mimes:
+        logger.warning(f"Rejected file upload (invalid MIME type): {file.filename} (detected: {mime})")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type. Detected: {mime}. Only PDF, DOCX, or TXT files are allowed."
+        )
 
     # Save uploaded file
     file_id = str(uuid4())
     file_path = os.path.join(UPLOAD_DIR, f"{file_id}_{file.filename}")
 
     with open(file_path, "wb") as f:
-        contents = await file.read()
         f.write(contents)
 
     logger.info(f"Uploaded resume: {file.filename} saved as {file_path}")
@@ -65,24 +89,18 @@ async def upload_resume(
     # Return response
     return JSONResponse(content={"message": "Resume uploaded and processed successfully."})
 
-# Extract structured info from resume text using LLM.
-@router.post("/extract-resume-info", dependencies=[Depends(JWTBearer())])
+# Extract structured info from resume text using LLM
+@router.post("/extract-resume-info")
 async def extract_info_from_resume(
     resume_text: str = Body(..., embed=True),
+    current_user: dict = Depends(get_current_user_payload)
 ):
     extracted = extract_resume_info(resume_text)
     return JSONResponse(content=extracted)
 
-# Store a resume
-@router.post("/store", dependencies=[Depends(JWTBearer())])
-def store(text: str = Body(..., embed=True)):
-    result = store_resume(text, metadata={"source": "user_upload"})
-    return JSONResponse(content={
-        "message": "Resume stored successfully.",
-        "pinecone_result": result
-    })
-
-# Search for resume
-@router.post("/search", dependencies=[Depends(JWTBearer())])
-def search(query: str = Body(..., embed=True)):
-    return search_resumes(query)
+# REMOVED: /store and /search endpoints for security
+# These endpoints allowed any authenticated user to:
+# 1. Store arbitrary data in Pinecone
+# 2. Search ALL users' resumes (privacy violation)
+# Use /upload for resume uploads (properly scoped to current user)
+# Recruiters should use /recruiter/candidates for searching

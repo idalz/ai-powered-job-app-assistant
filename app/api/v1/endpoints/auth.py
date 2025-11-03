@@ -1,22 +1,27 @@
-from fastapi import APIRouter, Body, Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.models.users import UserCred, UserInfo
 from app.core.security import create_access_token
 from app.core.logger import logger
 from passlib.context import CryptContext
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+limiter = Limiter(key_func=get_remote_address)
 
 # Verify password
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
-# Login endpoint
+# Login endpoint with rate limiting (5 attempts per minute)
 @router.post("/login")
+@limiter.limit("5/minute")
 def login(
+    request: Request,
     email: str = Body(..., embed=True),
     password: str = Body(..., embed=True),
     db: Session = Depends(get_db)

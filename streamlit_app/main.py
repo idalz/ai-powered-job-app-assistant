@@ -2,12 +2,12 @@ import streamlit as st
 
 # Streamlit page settings
 st.set_page_config(
-    page_title="AI Job Application Assistant",
+    page_title="JobMatch Assistant",
     page_icon="🤖",
     layout="centered",
 )
 
-st.title("Welcome to AI Job Application Assistant 🤖")
+st.title("Welcome to JobMatch Assistant 🤖")
 
 st.markdown(
     """

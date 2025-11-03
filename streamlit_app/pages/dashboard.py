@@ -3,7 +3,7 @@ from services.api_client import APIClient
 
 # Streamlit page settings
 st.set_page_config(
-    page_title="Dashboard - AI Job Application Assistant",
+    page_title="Dashboard - JobMatch Assistant",
     page_icon="🤖",
     layout="wide",
 )
@@ -50,7 +50,10 @@ st.title(f"Welcome, {user_info.get('name', 'User')}!")
 # Sidebar navigation
 st.sidebar.title("Navigation")
 
+# Base tabs for all users
 tab_titles = ["Info", "Job Analysis", "Cover Letter", "Extract Resume Info"]
+
+# Recruiter-only tabs
 if user_info.get("is_recruiter"):
     tab_titles.append("Match Candidates")
 

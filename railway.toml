@@ -1,0 +1,34 @@
+# Railway Configuration for JobMatch Assistant
+# This project requires TWO services: backend (FastAPI) and frontend (Streamlit)
+
+# Backend Service (FastAPI)
+[[services]]
+  name = "jobmatch-backend"
+  source = "."
+
+  [services.variables]
+  ENVIRONMENT = "production"
+  PORT = "8000"
+
+  [services.deploy]
+  startCommand = "python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+  healthcheckPath = "/health"
+  healthcheckTimeout = 60
+  restartPolicyType = "on_failure"
+  restartPolicyMaxRetries = 3
+
+# Frontend Service (Streamlit)
+[[services]]
+  name = "jobmatch-frontend"
+  source = "."
+
+  [services.variables]
+  ENVIRONMENT = "production"
+  PORT = "8501"
+
+  [services.deploy]
+  startCommand = "streamlit run streamlit_app/main.py --server.port $PORT --server.address 0.0.0.0"
+  healthcheckPath = "/_stcore/health"
+  healthcheckTimeout = 60
+  restartPolicyType = "on_failure"
+  restartPolicyMaxRetries = 3

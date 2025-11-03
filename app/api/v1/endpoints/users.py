@@ -47,10 +47,15 @@ def update_user(updated_fields: UserUpdateSchema = Body(...), current_user: dict
         raise HTTPException(status_code=404, detail=str(e))
 
 # Search multiple users by emails (for recruiters)
-@router.post("/search-users", response_model=List[UserInfoSchema], dependencies=[Depends(JWTBearer())])
+@router.post("/search-users", response_model=List[UserInfoSchema])
 def search_users_by_emails(
     request: EmailsRequest,
+    current_user: dict = Depends(get_current_user_payload),
     db: Session = Depends(get_db),
 ):
+    # Verify user is a recruiter
+    if not current_user.get("is_recruiter"):
+        raise HTTPException(status_code=403, detail="Only recruiters can search users")
+
     users = get_users_by_emails(db, request.emails)
     return users

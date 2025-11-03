@@ -2,7 +2,8 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.config import settings
 from app.core.logger import logger
-import json 
+import json
+import re 
 
 llm = ChatOpenAI(
     temperature=0.2,
@@ -35,9 +36,22 @@ def extract_resume_info(resume_text: str) -> dict:
         chain = prompt | llm
         result = chain.invoke({"resume_text":resume_text})
         logger.info("LangChain LLM extraction successful")
-        return {"extracted_info": result.content}
+
+        # Extract JSON from response (handle markdown code blocks)
+        content = result.content.strip()
+
+        # Remove markdown code blocks if present
+        if content.startswith("```"):
+            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if json_match:
+                content = json_match.group(1)
+            else:
+                content = content.replace("```json", "").replace("```", "").strip()
+
+        return {"extracted_info": content}
     except Exception as e:
         logger.error(f"Resume extraction failed: {e}")
+        logger.error(f"Raw LLM response: {result.content if 'result' in locals() else 'N/A'}")
         return {"error": str(e)}
     
 def extract_job_info(job_text: str) -> dict:
@@ -63,11 +77,25 @@ def extract_job_info(job_text: str) -> dict:
 
         logger.info("Job info extracted successfully")
 
-        job_info = json.loads(result.content)
+        # Extract JSON from response (handle markdown code blocks)
+        content = result.content.strip()
+
+        # Remove markdown code blocks if present
+        if content.startswith("```"):
+            # Find the JSON content between ```json and ```
+            json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL)
+            if json_match:
+                content = json_match.group(1)
+            else:
+                # Try removing just the ``` markers
+                content = content.replace("```json", "").replace("```", "").strip()
+
+        job_info = json.loads(content)
 
         return job_info
     except Exception as e:
         logger.error(f"Job info extraction failed: {e}")
+        logger.error(f"Raw LLM response: {result.content if 'result' in locals() else 'N/A'}")
         return {"error": str(e)}
 
 def match_resume_to_job(resume_info: str, job_info: str) -> dict:

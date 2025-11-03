@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     API_URL: str = "http://localhost:8000/api/v1/endpoints/"
     SECRET_KEY: str
 
+    # CORS settings (comma-separated list of allowed origins)
+    CORS_ORIGINS: str = "http://localhost:8501,http://localhost:3000"
+
     # Database settings (psycopg3 format)
     DATABASE_URL: str
 

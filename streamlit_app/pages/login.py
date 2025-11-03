@@ -3,7 +3,7 @@ from services.api_client import APIClient
 
 # Streamlit page settings
 st.set_page_config(
-    page_title="Login - AI Job Application Assistant",
+    page_title="Login - JobMatch Assistant",
     page_icon="🤖",
     layout="centered",
 )
