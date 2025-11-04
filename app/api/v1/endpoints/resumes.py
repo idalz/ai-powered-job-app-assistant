@@ -11,8 +11,8 @@ from app.api.deps.jwt_bearer import JWTBearer
 from app.api.deps.current_user import get_current_user_payload
 
 import os
-# import magic  # Disabled for Railway deployment - using extension validation only
 from uuid import uuid4
+# Note: python-magic removed, using custom magic bytes validation instead
 
 UPLOAD_DIR = "app/uploads" # Store uploads here
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB limit
