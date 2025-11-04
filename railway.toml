@@ -10,6 +10,7 @@ ENVIRONMENT = "production"
 PORT = "8501"
 
 [services.deploy]
+startCommand = "bash start.sh"
 healthcheckPath = "/_stcore/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
