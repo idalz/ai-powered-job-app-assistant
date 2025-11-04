@@ -2,7 +2,7 @@
 
 > **AI-Powered Job Application Assistant**
 
-A modern, production-ready application that leverages **GPT-4o-mini**, **LangChain**, **Pinecone**, and **FastAPI** to intelligently match resumes with job descriptions, generate tailored cover letters, and enable recruiter-driven candidate search via **semantic vector search**.
+An application that leverages **GPT-4o-mini**, **LangChain**, **Pinecone**, and **FastAPI** to intelligently match resumes with job descriptions, generate tailored cover letters, and enable recruiter-driven candidate search via **semantic vector search**.
 
 **🚀 [Live Demo](https://your-railway-app.railway.app)** *(Coming soon)*
 
