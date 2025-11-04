@@ -11,7 +11,7 @@ from app.api.deps.jwt_bearer import JWTBearer
 from app.api.deps.current_user import get_current_user_payload
 
 import os
-import magic
+# import magic  # Disabled for Railway deployment - using extension validation only
 from uuid import uuid4
 
 UPLOAD_DIR = "app/uploads" # Store uploads here
@@ -20,6 +20,35 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB limit
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 router = APIRouter()
+
+
+def validate_file_type(contents: bytes, filename: str) -> bool:
+    """
+    Validate file type by checking magic bytes (file signature).
+    Returns True if file is valid PDF or DOCX, False otherwise.
+    """
+    # Check PDF signature (starts with %PDF)
+    if contents.startswith(b'%PDF'):
+        return True
+
+    # Check DOCX signature (ZIP file starting with PK, containing specific XML files)
+    # DOCX files are ZIP archives, so they start with PK (0x50 0x4B)
+    if contents.startswith(b'PK\x03\x04'):
+        # Basic check for DOCX - it's a ZIP file
+        # More thorough check would unzip and verify contents, but this is sufficient
+        if filename.lower().endswith('.docx'):
+            return True
+
+    # Check plain text (no specific signature, just verify it's readable text)
+    if filename.lower().endswith('.txt'):
+        try:
+            # Try to decode as UTF-8 text
+            contents[:1024].decode('utf-8')
+            return True
+        except UnicodeDecodeError:
+            return False
+
+    return False
 
 # File upload
 @router.post("/upload")
@@ -43,19 +72,12 @@ async def upload_resume(
         logger.warning(f"File too large: {file.filename} ({len(contents)} bytes)")
         raise HTTPException(status_code=400, detail=f"File too large. Maximum size is {MAX_FILE_SIZE / 1024 / 1024}MB.")
 
-    # Validate MIME type (check actual file content, not just extension)
-    mime = magic.from_buffer(contents, mime=True)
-    allowed_mimes = [
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",  # .docx
-        "text/plain"
-    ]
-
-    if mime not in allowed_mimes:
-        logger.warning(f"Rejected file upload (invalid MIME type): {file.filename} (detected: {mime})")
+    # Validate file type by checking magic bytes (file signature)
+    if not validate_file_type(contents, file.filename):
+        logger.warning(f"Rejected file upload (invalid file signature): {file.filename}")
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid file type. Detected: {mime}. Only PDF, DOCX, or TXT files are allowed."
+            detail="Invalid file type. The file content does not match the extension. Only PDF, DOCX, or TXT files are allowed."
         )
 
     # Save uploaded file
