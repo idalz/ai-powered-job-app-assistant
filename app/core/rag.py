@@ -41,8 +41,8 @@ def store_resume(text: str, metadata: dict = None):
 def search_resumes(query: str, k: int = 3):
     try:
         vectorstore = get_vectorstore()
-        results = vectorstore.similarity_search(query, k=k)
-        return [{"text": r.page_content, "metadata": r.metadata} for r in results]
+        results = vectorstore.similarity_search_with_score(query, k=k)
+        return [{"text": r[0].page_content, "metadata": r[0].metadata, "score": r[1]} for r in results]
     except Exception as e:
         logger.error(f"Pinecone search failed: {e}")
         return {"error": str(e)}

@@ -54,7 +54,7 @@ def fetch_users_info(api_client: APIClient, emails: list):
     except Exception:
         return {}
 
-# Display candidates 
+# Display candidates
 def display_candidates(api_client: APIClient, candidates: list):
     # Collect all emails
     emails = [c.get("metadata", {}).get("email") for c in candidates if c.get("metadata", {}).get("email")]
@@ -70,16 +70,22 @@ def display_candidates(api_client: APIClient, candidates: list):
     for idx, candidate in enumerate(candidates, start=1):
         email = candidate.get("metadata", {}).get("email")
         resume_text = candidate.get("text", "")
+        similarity_score = candidate.get("score", 0)
 
         if not email or email not in users_info:
             continue
 
         user_info = users_info[email]
 
-        with st.expander(f"🎯 Candidate {idx}: {user_info.get('name', 'Unnamed')}"):
+        # Format score as percentage (lower score = better match in cosine distance)
+        # Convert to similarity percentage (1 - score gives similarity for distance metrics)
+        similarity_pct = max(0, (1 - similarity_score) * 100)
+
+        with st.expander(f"🎯 Candidate {idx}: {user_info.get('name', 'Unnamed')} - Match: {similarity_pct:.1f}%"):
             st.markdown(f"**Name:** {user_info.get('name', '-')}")
             st.markdown(f"**Email:** {user_info.get('email', '-')}")
             st.markdown(f"**Phone:** {user_info.get('phone_number', '-')}")
+            st.markdown(f"**Similarity Score:** {similarity_pct:.2f}% (Distance: {similarity_score:.4f})")
             if user_info.get("linkedin_url"):
                 st.markdown(f"[LinkedIn Profile]({user_info['linkedin_url']})")
             if user_info.get("github_url"):
